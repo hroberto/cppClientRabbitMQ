@@ -75,7 +75,20 @@ docker-compose logs grafanaservices
 docker-compose down
 ```
 
-## 4. Gerenciando do RabbitMQ via Console
+## 4. Compilando e executando
+
+```bash
+
+./bin/Debug/sampleRPC/rpc-server &
+
+# duas instancias client
+./bin/Debug/sampleRPC/rpc-client &
+./bin/Debug/sampleRPC/rpc-client &
+
+```
+
+
+## 5. Gerenciando do RabbitMQ via Console
 
 - [Guia rabbitmqctl](https://www.rabbitmq.com/rabbitmqctl.8.html)
 
