@@ -59,13 +59,13 @@ void MessageBrokerProducer::publish(const MessagePublishProperties& properties)
         props._flags |= AMQP_BASIC_CORRELATION_ID_FLAG;
         props.correlation_id = amqp_cstring_bytes(properties.correlation_id.c_str());
     }
-    if (!properties.message_id.empty()) {
-        props._flags |= AMQP_BASIC_MESSAGE_ID_FLAG;
+    if (!properties.expiration.empty()) {
+        props._flags |= AMQP_BASIC_EXPIRATION_FLAG;
         props.expiration = amqp_cstring_bytes(properties.expiration.c_str());
     }
     // 
     if (!properties.message_id.empty()) {
-        props._flags |= AMQP_BASIC_EXPIRATION_FLAG;
+        props._flags |= AMQP_BASIC_MESSAGE_ID_FLAG;
         props.message_id = amqp_cstring_bytes(properties.message_id.c_str());
     }
 

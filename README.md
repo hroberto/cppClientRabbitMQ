@@ -135,7 +135,8 @@ rabbitmqctl   list_exchanges  name type durable auto_delete internal arguments p
 # amq.headers     headers true    false   false   []
 
 
-for IT in `rabbitmqctl  list_exchanges name | grep -v 'Listing\|name\|amq'` ; do echo ${IT}; rabbitmqctl  delete_exchange   ${IT};   done
+for IT in `rabbitmqctl  list_exchanges name | grep -v 'Listing\|name\|amq'` ; do echo ${IT};  rabbitmqadmin  delete exchange  name="${IT}"; done
+
 
 ```
 
@@ -149,7 +150,7 @@ rabbitmqctl  delete_queue  test.client1
 rabbitmqctl  list_channels connection messages_unacknowledged
 
 
-for IT in `rabbitmqctl  list_queues  name | grep amq`; do echo ${IT}; rabbitmqctl  delete_queue   ${IT};   done
+for IT in `rabbitmqctl list_queues  name | grep -v 'Timeout\|Listing\|name'`; do echo ${IT}; rabbitmqadmin delete queue name="${IT}"; done
 
 ```
 

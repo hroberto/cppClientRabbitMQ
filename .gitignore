@@ -36,3 +36,4 @@ bin*/
 
 # Log Files
 logs/*
+tmp-src/*
