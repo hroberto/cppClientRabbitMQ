@@ -66,17 +66,17 @@ private:
 };
 
 template <class T>
-std::ostream& operator<<(std::ostream& os, genialcpp::MarkValue<T>& obj) {
+std::ostream& operator<<(std::ostream& os, libapp::MarkValue<T>& obj) {
     os << obj.get();
     return os;
 }
 template <class T>
-std::ostream& operator<<(std::ostream& os, const genialcpp::MarkValue<T>& obj) {
+std::ostream& operator<<(std::ostream& os, const libapp::MarkValue<T>& obj) {
     os << obj.get();
     return os;
 }
 
-}  // namespace genialcpp
+}  // namespace libapp
 
 
 

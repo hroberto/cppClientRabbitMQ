@@ -21,9 +21,9 @@ class MapExpires {
 public:
     typedef std::chrono::_V2::system_clock::time_point time_point;
 
-    typedef typename std::pair<K, genialcpp::MarkValue<V> >     PAIR_MAP_TYPE;
-    typedef typename std::map<K, genialcpp::MarkValue<V> >      MAP_TYPE;
-    typedef genialcpp::MarkValue<MAP_TYPE>              VALUE_PAIR_TYPE;
+    typedef typename std::pair<K, libapp::MarkValue<V> >     PAIR_MAP_TYPE;
+    typedef typename std::map<K, libapp::MarkValue<V> >      MAP_TYPE;
+    typedef libapp::MarkValue<MAP_TYPE>              VALUE_PAIR_TYPE;
 
     typedef std::pair<time_point, VALUE_PAIR_TYPE >             value_vector_type;
     typedef std::vector< value_vector_type >                    vector_type;
