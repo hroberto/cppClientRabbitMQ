@@ -17,11 +17,16 @@ QueueProperties __queuePropertiesEmpty;
 
 MessageBrokerBase::~MessageBrokerBase()
 {
-    die_on_amqp_error(amqp_channel_close(conn_, 1, AMQP_REPLY_SUCCESS), "Closing channel");
-    die_on_amqp_error(amqp_connection_close(conn_, AMQP_REPLY_SUCCESS), "Closing connection");
-    die_on_error(amqp_destroy_connection(conn_), "Ending connection");
+    if( socket_ != nullptr ) {
+        die_on_amqp_error(amqp_channel_close(conn_, 1, AMQP_REPLY_SUCCESS), "Closing channel");
+        die_on_amqp_error(amqp_connection_close(conn_, AMQP_REPLY_SUCCESS), "Closing connection");
+    }
 
-    socket_ = NULL;
+    if( conn_ != nullptr ) {
+        die_on_error(amqp_destroy_connection(conn_), "Ending connection");
+    }
+    conn_ = nullptr;
+    socket_ = nullptr;
 }
 
 
@@ -35,18 +40,18 @@ MessageBrokerBase::~MessageBrokerBase()
 int MessageBrokerBase::open_socket() 
 {
     conn_ = amqp_new_connection();
-    socket_ = amqp_tcp_socket_new(conn_);
+    // socket_ = amqp_tcp_socket_new(conn_);
+    amqp_socket_t *socket = amqp_tcp_socket_new(conn_);
 
-    if (!socket_) {
-        std::cerr << "creating TCP socket";
-        return 1;
+    if (!socket) {
+        throw  MessageBrokerCreateSocketException();
     }
 
-    int status = amqp_socket_open(socket_, info_.host.c_str(), info_.port );
+    int status = amqp_socket_open(socket, info_.host.c_str(), info_.port );
     if (status) {
-        std::cerr << "opening TCP socket";
-        return 1;
+        throw  MessageBrokerOpenSocketException();
     }
+    socket_ = std::move( socket );
 
     die_on_amqp_error(amqp_login(conn_, info_.vhost.c_str(), 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, info_.login_user.c_str(), info_.login_password.c_str()), "Logging in");
 

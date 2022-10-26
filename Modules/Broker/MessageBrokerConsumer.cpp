@@ -61,10 +61,6 @@ std::shared_ptr<MessageWrapper> MessageBrokerConsumer::read()
  * 
  * @param envelope 
  */
-void MessageBrokerConsumer::ack_message(const MessageWrapper& wrapper) {
-    amqp_basic_ack( conn_, info_.channel, wrapper->delivery_tag, false );
-}
-
 void MessageBrokerConsumer::ack_message(const std::shared_ptr<MessageWrapper> wrapper_shr) {
     amqp_basic_ack( conn_, info_.channel, (*wrapper_shr)->delivery_tag, false );
 }

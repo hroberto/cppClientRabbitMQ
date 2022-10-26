@@ -58,6 +58,32 @@ typedef struct MessageBrokerInfo {
     MessageBrokerConsumer_Type consumer;
 } MessageBroker_Type;
 
+
+
+typedef struct MessagePublishInfo {
+
+    struct {        
+        uint8_t delivery_mode{ AMQP_DELIVERY_PERSISTENT };
+        std::string reply_to;
+        std::string app_id;
+        std::string correlation_id;
+        std::string expiration;       // Time-to-live for this message in milliseconds
+    } property;
+
+    struct {
+        std::string message_id;
+        std::string content_type{ "text/plain" };
+        std::string body;
+    } message;
+
+    struct {
+        amqp_boolean_t mandatory{ false };
+        amqp_boolean_t immediate{ false };
+        std::string routing_key;
+    } delivery;
+    
+} MessagePublish_Type;
+
 }
 
 #endif // __MESSAGEBROKERINFO_H__

@@ -4,7 +4,6 @@
 
 #include "Broker/MessageBrokerBase.hpp"
 #include "Broker/MessageBrokerInfo.h"
-#include "Broker/MessagePublishProperties.h"
 #include <memory>
 
 
@@ -17,9 +16,8 @@ public:
     explicit MessageBrokerProducer();
     virtual ~MessageBrokerProducer();
 
-
     void open(const MessageBroker_Type& info);
-    void publish(const MessagePublishProperties& properties);
+    void publish(const MessagePublish_Type& properties);
     
 };
 

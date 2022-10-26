@@ -119,16 +119,18 @@ int main(int argc, char const *argv[])
         std::cout << "|> CLIENT [\"" << ssAppID.str() << "] - sending routing_key - " << cli_producer.getBrokerInfo().queue.routing_key << "\" - sequence:= " << sequence << std::endl;
         const std::string correlation_id{ std::to_string( sequence ) };
 
-        cli_producer.publish( libapp::MessagePublishProperties {
-                .content_type = "text/plain",
-                // .reply_to = cli_consumer.getBrokerInfo().consumerQueueName,
-                .reply_to = routing_key_response,
-                .message_body = "Consumer producer new message",
-                .correlation_id = correlation_id,
-                .app_id = ssAppID.str(),
-                .expiration = ( ttl_expires > 0 ? std::to_string(ttl_expires) : "" ),
-                });
-        
+        cli_producer.publish( {
+                .property {
+                    .reply_to = routing_key_response,
+                    .app_id = ssAppID.str(),
+                    .correlation_id = correlation_id,
+                    .expiration = ( ttl_expires > 0 ? std::to_string(ttl_expires) : "" )
+                },
+                .message {
+                    .content_type = "text/plain",
+                    .body = "Consumer producer new message"
+                }
+            });
 
         std::shared_ptr<libapp::MessageWrapper>  wrapper_shr = wait_for_message( cli_consumer, ssAppID.str(), correlation_id );
         std::cout << fmt::format("|> CLIENT [\"{}] - msg:= {}" , ssAppID.str(), wrapper_shr->toString() ) << std::endl;

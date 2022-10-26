@@ -13,11 +13,9 @@ public:
     explicit MessageBrokerConsumer();
     virtual ~MessageBrokerConsumer();
 
-
     void open(const MessageBroker_Type& info);
 
     std::shared_ptr<MessageWrapper> read();
-    void ack_message(const MessageWrapper& wrapper);
     void ack_message(const std::shared_ptr<MessageWrapper> wrapper_shr);
 };
 

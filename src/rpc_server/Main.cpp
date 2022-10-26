@@ -98,15 +98,21 @@ int main(int argc, char const *argv[])
 
         std::cout << "|>  SERVER [" << srv_consumer.getBrokerInfo().queue.queue_name << "] - received msg:= " << wrapper_shr->toString() << std::endl;
 
-        srv_producer.publish( libapp::MessagePublishProperties {
-                .content_type = byte_to_string( (*wrapper_shr)->message.properties.content_type ),
+        srv_producer.publish( {
+            .property {
                 .reply_to = srv_consumer.getBrokerInfo().queue.routing_key, 
-                .message_body = "Process ok",
-                .correlation_id = byte_to_string( (*wrapper_shr)->message.properties.correlation_id ),
                 .app_id = byte_to_string( (*wrapper_shr)->message.properties.app_id),
-                .routing_key = from_routing_key,
+                .correlation_id = byte_to_string( (*wrapper_shr)->message.properties.correlation_id ),
                 .expiration = ( ttl_expires > 0 ? std::to_string(ttl_expires) : "" )
-                });
+            },
+            .message {
+                .content_type = byte_to_string( (*wrapper_shr)->message.properties.content_type ),
+                .body = "Process ok"
+            },
+            .delivery {
+                .routing_key = from_routing_key
+            }            
+        });
         // std::cout << "|>  SERVER [" << srv_consumer.getBrokerInfo().consumerQueueName << "] - from_routing_key:= " << from_routing_key << " - response." << std::endl;
     }
 

@@ -9,7 +9,7 @@ set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 
-include_directories(${CMAKE_HOME_DIRECTORY}/include/)
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 file(GLOB CPP_FILES  *.cpp)
 
@@ -23,7 +23,7 @@ RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin/Release/${PROJECT_NAME
 RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_SOURCE_DIR}/bin/Release/${PROJECT_NAME}/"
 )
 
-target_link_libraries(${TARGET} gtest gmock_main)
+target_link_libraries(${TARGET} gtest gmock_main rabbitmq::rabbitmq ${LIBCPP_PRJ_LIBRARIES} )
 add_test(NAME project_test COMMAND ${TARGET})
 
 include(${CMAKE_MODULE_PATH}/dependencies.cmake)

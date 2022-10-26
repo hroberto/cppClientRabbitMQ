@@ -4,6 +4,7 @@
 #ifndef librabbitmq_utils_h
 #define librabbitmq_utils_h
 
+
 void die(const char *fmt, ...);
 
 void die_on_error(int x, char const *context);
