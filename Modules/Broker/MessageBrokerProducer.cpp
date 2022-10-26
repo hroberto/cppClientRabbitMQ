@@ -22,7 +22,7 @@ MessageBrokerProducer::~MessageBrokerProducer()
 }
 
 
-void MessageBrokerProducer::open(const struct MessageBrokerInfo_T& info) 
+void MessageBrokerProducer::open(const MessageBroker_Type& info) 
 {
     info_ = info;
 
@@ -69,9 +69,9 @@ void MessageBrokerProducer::publish(const MessagePublishProperties& properties)
         props.message_id = amqp_cstring_bytes(properties.message_id.c_str());
     }
 
-    std::string routing_key = ( !properties.routing_key.empty() ? properties.routing_key : info_.routing_key );
+    std::string routing_key = ( !properties.routing_key.empty() ? properties.routing_key : info_.queue.routing_key );
 
-    die_on_error(amqp_basic_publish(conn_, CHANNEL_, amqp_cstring_bytes(info_.exchange_name.c_str()),
+    die_on_error(amqp_basic_publish(conn_, info_.channel, amqp_cstring_bytes(info_.exchange.name.c_str()),
                                     amqp_cstring_bytes( routing_key.c_str()),
                                     properties.mandatory, properties.immediate,
                                     &props, amqp_cstring_bytes(properties.message_body.c_str())),

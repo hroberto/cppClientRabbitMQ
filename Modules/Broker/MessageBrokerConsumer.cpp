@@ -22,7 +22,7 @@ MessageBrokerConsumer::~MessageBrokerConsumer()
 }
 
 
-void MessageBrokerConsumer::open(const struct MessageBrokerInfo_T& info) 
+void MessageBrokerConsumer::open(const MessageBroker_Type& info) 
 {
     info_ = info;
 
@@ -62,11 +62,11 @@ std::shared_ptr<MessageWrapper> MessageBrokerConsumer::read()
  * @param envelope 
  */
 void MessageBrokerConsumer::ack_message(const MessageWrapper& wrapper) {
-    amqp_basic_ack( conn_, CHANNEL_, wrapper->delivery_tag, false );
+    amqp_basic_ack( conn_, info_.channel, wrapper->delivery_tag, false );
 }
 
 void MessageBrokerConsumer::ack_message(const std::shared_ptr<MessageWrapper> wrapper_shr) {
-    amqp_basic_ack( conn_, CHANNEL_, (*wrapper_shr)->delivery_tag, false );
+    amqp_basic_ack( conn_, info_.channel, (*wrapper_shr)->delivery_tag, false );
 }
 
 }

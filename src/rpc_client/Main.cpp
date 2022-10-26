@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     std::string routing_key_request = "task_request";
     std::string routing_key_response= "task_response";
     std::string consumerQueueName;
-    int ttl_expires = 50000;
+    int ttl_expires = 0;
 
     boost::program_options::options_description optDesc("Opções:");
     optDesc.add_options()
@@ -73,27 +73,37 @@ int main(int argc, char const *argv[])
 
     libapp::MessageBrokerConsumer cli_consumer;
     cli_consumer.open(
-        libapp::MessageBrokerInfo_T{
+        {
             .host = hostname, 
             .port = port,
-            .exchange_type = exchange_type,
-            .exchange_name = exchange_name,
-            .routing_key = routing_key_response,
-            .consumerQueueName = consumerQueueName,
-            .consumer_tag = ssAppID.str(),
-            .exchange_durable = true,
-            .queue_durable = true,
+            .exchange = { 
+                .type = exchange_type,
+                .name = exchange_name,
+                .durable = true,
+                },
+            .queue = {
+                .routing_key = routing_key_response,
+                .queue_name = consumerQueueName,
+                .durable = true,
+            },
+            .consumer = {
+                .tag = ssAppID.str(),
+            }
         });
 
     libapp::MessageBrokerProducer cli_producer;
     cli_producer.open( 
-        libapp::MessageBrokerInfo_T{
+        {
             .host = hostname, 
             .port = port,
-            .exchange_type = exchange_type,
-            .exchange_name = exchange_name,
-            .routing_key = routing_key_request,
-            .exchange_durable = true
+            .exchange = { 
+                .type = exchange_type,
+                .name = exchange_name,
+                .durable = true,
+                },
+            .queue = {
+                .routing_key = routing_key_request
+            }
         });
 
 
@@ -106,7 +116,7 @@ int main(int argc, char const *argv[])
     while( true )
     {
         ++sequence;
-        std::cout << "|> CLIENT [\"" << ssAppID.str() << "] - sending routing_key - " << cli_producer.getBrokerInfo().routing_key << "\" - sequence:= " << sequence << std::endl;
+        std::cout << "|> CLIENT [\"" << ssAppID.str() << "] - sending routing_key - " << cli_producer.getBrokerInfo().queue.routing_key << "\" - sequence:= " << sequence << std::endl;
         const std::string correlation_id{ std::to_string( sequence ) };
 
         cli_producer.publish( libapp::MessagePublishProperties {

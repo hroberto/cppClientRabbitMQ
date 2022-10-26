@@ -18,7 +18,7 @@ public:
     explicit MessageBrokerBase() {}
     virtual ~MessageBrokerBase();
 
-    virtual void open(const struct MessageBrokerInfo_T& info) = 0;
+    virtual void open(const MessageBroker_Type& info) = 0;
 
     // void publish(const MessagePublishProperties& properties);
     // std::shared_ptr<MessageWrapper> read();
@@ -26,15 +26,15 @@ public:
     // void ack_message(const std::shared_ptr<MessageWrapper> wrapper_shr);
 
 
-    const MessageBrokerInfo_T&  getBrokerInfo() const& { return info_; }
+    const MessageBroker_Type&  getBrokerInfo() const& { return info_; }
     
 protected:
     int open_socket();
-    void exchange_declare(const MessageBrokerInfo_T& info);
+    void exchange_declare(const MessageBroker_Type& info);
     int prepare();
     void prepare_consumer();
 
-    MessageBrokerInfo_T info_;
+    MessageBroker_Type info_;
     
     amqp_connection_state_t conn_ {};
     amqp_socket_t *socket_{ NULL };
@@ -44,8 +44,6 @@ protected:
     QueueProperties properties_;
 
     
-    const amqp_channel_t CHANNEL_{1};    
-
 };
 
 }

@@ -16,7 +16,7 @@ namespace libapp {
 
 class IMessageQueueConsumer {
 public:
-    virtual void open(const struct MessageBrokerInfo_T& info) = 0;
+    virtual void open(const MessageBroker_Type& info) = 0;
 
     virtual std::shared_ptr<MessageWrapper> read() = 0;
     virtual void ack_message(const MessageWrapper& wrapper) = 0;
@@ -25,7 +25,7 @@ public:
 
 class IMessageQueueProducer {
 public:
-    virtual void open(const struct MessageBrokerInfo_T& info) = 0;
+    virtual void open(const MessageBroker_Type& info) = 0;
     virtual void publish(const MessagePublishProperties& properties) = 0;
 };
 

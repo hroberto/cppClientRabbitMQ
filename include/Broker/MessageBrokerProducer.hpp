@@ -18,7 +18,7 @@ public:
     virtual ~MessageBrokerProducer();
 
 
-    void open(const struct MessageBrokerInfo_T& info);
+    void open(const MessageBroker_Type& info);
     void publish(const MessagePublishProperties& properties);
     
 };

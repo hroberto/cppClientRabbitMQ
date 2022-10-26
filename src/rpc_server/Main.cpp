@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
     std::string routing_key_request = "task_request";
     std::string routing_key_response= "task_response";
     std::string consumerQueueName;
-    int ttl_expires = 50000;
+    int ttl_expires = 0;
 
 
     boost::program_options::options_description optDesc("Opções:");
@@ -48,28 +48,39 @@ int main(int argc, char const *argv[])
 
     libapp::MessageBrokerConsumer srv_consumer;
     srv_consumer.open(
-        libapp::MessageBrokerInfo_T{
+        {
             .host = hostname, 
             .port = port,
-            .exchange_type = exchange_type,
-            .exchange_name = exchange_name,
-            .routing_key = routing_key_request,
-            .consumerQueueName = consumerQueueName,            
-            .consumer_tag = ssAppID.str(),
-            .exchange_durable = true,
-            .queue_durable = true  
+            .exchange = { 
+                .type = exchange_type,
+                .name = exchange_name,
+                .durable = true,
+                },
+            .queue = {
+                .routing_key = routing_key_request,
+                .queue_name = consumerQueueName,
+                .durable = true,
+            },
+            .consumer = {
+                .tag = ssAppID.str(),
+            }
         });
-
 
     libapp::MessageBrokerProducer srv_producer;
     srv_producer.open( 
-        libapp::MessageBrokerInfo_T{
+        {
             .host = hostname, 
             .port = port,
-            .exchange_type = exchange_type,
-            .exchange_name = exchange_name,
-            .routing_key = routing_key_response,
-            .exchange_durable = true
+            .exchange = { 
+                .type = exchange_type,
+                .name = exchange_name,
+                .durable = true,
+                },
+            .queue = {
+                .routing_key = routing_key_response,
+                .queue_name = consumerQueueName,
+                .durable = true,
+            }
         });
 
 
@@ -85,11 +96,11 @@ int main(int argc, char const *argv[])
         
         std::string from_routing_key = byte_to_string( (*wrapper_shr)->message.properties.reply_to );
 
-        std::cout << "|>  SERVER [" << srv_consumer.getBrokerInfo().consumerQueueName << "] - received msg:= " << wrapper_shr->toString() << std::endl;
+        std::cout << "|>  SERVER [" << srv_consumer.getBrokerInfo().queue.queue_name << "] - received msg:= " << wrapper_shr->toString() << std::endl;
 
         srv_producer.publish( libapp::MessagePublishProperties {
                 .content_type = byte_to_string( (*wrapper_shr)->message.properties.content_type ),
-                .reply_to = srv_consumer.getBrokerInfo().routing_key, 
+                .reply_to = srv_consumer.getBrokerInfo().queue.routing_key, 
                 .message_body = "Process ok",
                 .correlation_id = byte_to_string( (*wrapper_shr)->message.properties.correlation_id ),
                 .app_id = byte_to_string( (*wrapper_shr)->message.properties.app_id),

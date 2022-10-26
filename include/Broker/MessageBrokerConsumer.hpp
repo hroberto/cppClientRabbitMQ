@@ -14,7 +14,7 @@ public:
     virtual ~MessageBrokerConsumer();
 
 
-    void open(const struct MessageBrokerInfo_T& info);
+    void open(const MessageBroker_Type& info);
 
     std::shared_ptr<MessageWrapper> read();
     void ack_message(const MessageWrapper& wrapper);

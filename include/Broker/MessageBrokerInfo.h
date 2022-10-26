@@ -7,41 +7,56 @@
 
 namespace libapp {
 
-struct MessageBrokerInfo_T {
+typedef struct MessageBrokerExchangeInfo {
+
+    std::string type;
+    std::string name;
+
+    bool passive{ false };
+    bool durable{ false };
+    bool auto_delete{ false };
+    bool internal{ false };
+
+    amqp_table_t arguments{ amqp_empty_table };
+
+} MessageBrokerExchange_Type;
+
+
+typedef struct MessageBrokerQueueInfo {
+    std::string routing_key;
+    std::string queue_name;
+
+    bool passive{ false };
+    bool durable{ false };
+    bool auto_delete{ false };
+    bool exclusive{ false };
+
+    amqp_table_t arguments{ amqp_empty_table };
+} MessageBrokerQueue_Type;
+
+
+typedef struct MessageBrokerConsumerInfo {
+    std::string tag;
+    bool no_local{ false };
+    bool no_ack{ false };
+    bool exclusive{ false };
+
+    amqp_table_t arguments{ amqp_empty_table };    
+} MessageBrokerConsumer_Type;
+
+
+typedef struct MessageBrokerInfo {
     std::string host{ "localhost" };
-    int port{ 5672 };    
-
-    std::string exchange_type;
-    std::string exchange_name;
-    std::string routing_key{};
-    std::string consumerQueueName;
-
-    std::string consumer_tag;
-
-    bool exchange_passive{ false };
-    bool exchange_durable{ false };
-    bool exchange_auto_delete{ false };
-    bool exchange_internal{ false };
-
-
-    bool queue_passive{ false };
-    bool queue_durable{ false };
-    bool queue_auto_delete{ false };
-    bool queue_exclusive{ false };    
-
-    bool consumer_no_local{ false };
-    bool consumer_no_ack{ false };
-    bool consumer_exclusive{ false };
-    
+    int port{ 5672 };
     std::string login_user{ "guest" };
     std::string login_password{ "guest" };
     std::string vhost{ "/" };
+    amqp_channel_t channel{1};
 
-//     MessageBrokerInfo_T& operator=(const MessageBrokerInfo_T& m) {
-//         return (*this);
-//     }
-
-};
+    MessageBrokerExchange_Type exchange;
+    MessageBrokerQueueInfo queue;
+    MessageBrokerConsumer_Type consumer;
+} MessageBroker_Type;
 
 }
 

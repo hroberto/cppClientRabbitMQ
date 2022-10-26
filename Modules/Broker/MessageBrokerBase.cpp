@@ -22,19 +22,8 @@ MessageBrokerBase::~MessageBrokerBase()
     die_on_error(amqp_destroy_connection(conn_), "Ending connection");
 
     socket_ = NULL;
-    
-    // amqp_bytes_free(queuename_);
 }
 
-
-// void MessageBrokerBase::open(const struct MessageBrokerInfo_T& info) 
-// {
-//     info_ = info;
-
-//     this->open_socket();
-//     this->exchange_declare( info );
-//     this->prepare();
-// }
 
 /**
  * @brief 
@@ -61,7 +50,7 @@ int MessageBrokerBase::open_socket()
 
     die_on_amqp_error(amqp_login(conn_, info_.vhost.c_str(), 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, info_.login_user.c_str(), info_.login_password.c_str()), "Logging in");
 
-    amqp_channel_open(conn_, CHANNEL_);
+    amqp_channel_open(conn_, info_.channel);
     die_on_amqp_error(amqp_get_rpc_reply(conn_), "Opening channel");
 
     return 0;
@@ -74,10 +63,10 @@ int MessageBrokerBase::open_socket()
  * @param exchange_name 
  * @param exchange_type 
  */
-void MessageBrokerBase::exchange_declare(const MessageBrokerInfo_T& info) {
+void MessageBrokerBase::exchange_declare(const MessageBroker_Type& info) {
     assert( socket_ != NULL );
 
-    amqp_exchange_declare(conn_, CHANNEL_, amqp_cstring_bytes(info.exchange_name.c_str()), amqp_cstring_bytes(info.exchange_type.c_str()),  info.exchange_passive, info.exchange_durable, info.exchange_auto_delete, info.exchange_internal,  amqp_empty_table);
+    amqp_exchange_declare(conn_, info_.channel, amqp_cstring_bytes(info.exchange.name.c_str()), amqp_cstring_bytes(info.exchange.type.c_str()),  info.exchange.passive, info.exchange.durable, info.exchange.auto_delete, info.exchange.internal,  info.exchange.arguments );
     
     die_on_amqp_error(amqp_get_rpc_reply(conn_), "Declaring exchange");
 }
@@ -92,39 +81,34 @@ void MessageBrokerBase::exchange_declare(const MessageBrokerInfo_T& info) {
 int MessageBrokerBase::prepare( ) 
 {
     assert( socket_ != NULL );
-    // assert( properties.type != eConnectNothing );
 
-    // properties_ = properties;    
+    amqp_bytes_t nameQueueBytes = amqp_empty_bytes;
 
-    {
-        amqp_bytes_t nameQueueBytes = amqp_empty_bytes;
+    bool queue_passive{ false }, queue_durable{false}, queue_exclusive{ true }, queue_auto_delete{ false };
 
-        bool queue_passive{ false }, queue_durable{false}, queue_exclusive{ true }, queue_auto_delete{ false };
+    if ( !info_.queue.queue_name.empty() ) {
+        nameQueueBytes = amqp_cstring_bytes(info_.queue.queue_name.c_str());
 
-        if ( !info_.consumerQueueName.empty() ) {
-            nameQueueBytes = amqp_cstring_bytes(info_.consumerQueueName.c_str());
+        queue_passive = info_.queue.passive;
+        queue_durable = info_.queue.durable;
+        queue_exclusive = info_.queue.exclusive;
+        queue_auto_delete = info_.queue.auto_delete;
+    }
 
-            queue_passive = info_.queue_passive;
-            queue_durable = info_.queue_durable;
-            queue_exclusive = info_.queue_exclusive;
-            queue_auto_delete = info_.queue_auto_delete;
-        }
+    amqp_queue_declare_ok_t *result = amqp_queue_declare(
+                    conn_, info_.channel, nameQueueBytes, 
+                    queue_passive, queue_durable, queue_exclusive, queue_auto_delete, 
+                    info_.queue.arguments );
 
-        amqp_queue_declare_ok_t *result = amqp_queue_declare(
-                        conn_, CHANNEL_, nameQueueBytes, 
-                        queue_passive, queue_durable, queue_exclusive, queue_auto_delete, 
-                        amqp_empty_table );
+    die_on_amqp_error(amqp_get_rpc_reply(conn_), "Declaring queue");
 
-        die_on_amqp_error(amqp_get_rpc_reply(conn_), "Declaring queue");
+    if ( info_.queue.queue_name.empty() ) {
+        info_.queue.queue_name = std::string((char*)result->queue.bytes, result->queue.len);
+    }
 
-        if ( info_.consumerQueueName.empty() ) {
-            info_.consumerQueueName = std::string((char*)result->queue.bytes, result->queue.len);
-        }
-
-        if (result->queue.bytes == NULL) {
-            fprintf(stderr, "Out of memory while copying queue name");
-            return 1;
-        }
+    if (result->queue.bytes == NULL) {
+        fprintf(stderr, "Out of memory while copying queue name");
+        return 1;
     }
 
     return 0;
@@ -134,13 +118,13 @@ int MessageBrokerBase::prepare( )
 
 void MessageBrokerBase::prepare_consumer()
 {
-    auto queuename = amqp_cstring_bytes(info_.consumerQueueName.c_str());
-    auto consumer_tag = (info_.consumer_tag.empty()) ? amqp_empty_bytes : amqp_cstring_bytes(info_.consumer_tag.c_str());
+    auto queuename = amqp_cstring_bytes(info_.queue.queue_name.c_str());
+    auto consumer_tag = (info_.consumer.tag.empty()) ? amqp_empty_bytes : amqp_cstring_bytes(info_.consumer.tag.c_str());
 
     /* constroi a ligacao o produtor direcionar para ele. */
-    amqp_queue_bind(conn_, CHANNEL_, queuename, amqp_cstring_bytes(info_.exchange_name.c_str()), amqp_cstring_bytes(info_.routing_key.c_str()), amqp_empty_table);
+    amqp_queue_bind(conn_, info_.channel, queuename, amqp_cstring_bytes(info_.exchange.name.c_str()), amqp_cstring_bytes(info_.queue.routing_key.c_str()), amqp_empty_table);
 
-    consume_ok_ = amqp_basic_consume(conn_, CHANNEL_, queuename, consumer_tag, info_.consumer_no_local, info_.consumer_no_ack, info_.consumer_exclusive, amqp_empty_table);
+    consume_ok_ = amqp_basic_consume(conn_, info_.channel, queuename, consumer_tag, info_.consumer.no_local, info_.consumer.no_ack, info_.consumer.exclusive, info_.consumer.arguments);
     die_on_amqp_error(amqp_get_rpc_reply(conn_), "Consuming");
 }
 
