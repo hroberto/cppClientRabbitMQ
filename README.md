@@ -13,7 +13,7 @@ Exemplo de integração com o Broker RabbitMQ.
 
 - Instruções:
 ```bash
-git clone git@ssh.dev.azure.com:v3/geniallabs/ETS-DEV/cppClientRabbitMQ
+git clone https://github.com/hroberto/cppClientRabbitMQ.git
 cd cppClientRabbitMQ
 
 rm -fr {buildDebug,buildRelease}
