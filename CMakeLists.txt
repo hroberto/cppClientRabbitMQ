@@ -57,7 +57,7 @@ include_directories(${LIBCPP_PRJ_BINARY_DIR})
 
 add_subdirectory(Modules)
 add_subdirectory(src)
-add_subdirectory(tmp-src)
+#add_subdirectory(tmp-src)
 add_subdirectory(unitTest)
 
 #add_subdirectory(samples)
